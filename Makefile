@@ -1,5 +1,5 @@
 # default port for the server
-export PORT=8081
+export PORT=8080
 
 # Declare phony targets to ensure they always run.
 .PHONY: generate format tidy build run test clean
@@ -34,7 +34,7 @@ run: tidy
 # test: Runs all the tests in the project.
 test: tidy
 	@echo "Running tests..."
-	go test ./...
+	go test -v ./...
 
 # clean: Removes built artifacts.
 clean:
