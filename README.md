@@ -101,18 +101,18 @@ This project was structured with an **enterprise mindset**, ensuring that future
 **Factory Pattern** *(mapper instantiation)*
    - Standardizes how different **mappers are created and managed**.
 
-**Strategy Pattern** *(rules engine design)*
-   - Each **receipt processing rule** is encapsulated as an independent function, allowing easy **modification and extension**.
+**Strategy Pattern** *(rules/ validation engine)*
+   - Each **rule/validator** is encapsulated as an independent object, allowing easy **modification and extension**.
 
-**Pipeline Pattern / Composite Pattern** *(rules engine design)*
-   - Each rule is executed sequentially, aggregating results dynamically.
-   - Rules are structured **hierarchically**, enabling seamless rule evaluation and composition.
+**Pipeline Pattern / Composite Pattern** *(rules/validation engine)*
+   - Each rule/validator is executed sequentially, aggregating results dynamically.
+   - Rules/validators are structured **hierarchically**, enabling seamless rule evaluation and composition.
 
-**Extensible Rules Engine**
-   - New rules can be **easily added** with minimal refactoring.
+**Extensible Rule/Validator Engine**
+   - New rules/validators can be **easily added** with minimal refactoring.
 
 **Separation of Concerns**
-   - Business logic lives in `rules`, data logic in `repository`, and API transformation in `mapper`.
+   - Validation occurs on api objects, business logic lives in `rules`, data logic in `repository`, and API transformation in `mapper`.
 
 **Minimal Dependencies**
    - Only **essential libraries** are included, ensuring lightweight performance.
@@ -145,12 +145,15 @@ This project was intentionally **over-engineered** to showcase software engineer
    - Uses **context.WithTimeout** to ensure all requests complete before shutting down.
    - Ensures **clean termination** of the server with **proper resource cleanup**.
 
+**Override Statuses**
+   - Override **500** and return **400** incase of panic/failure. Interpreted spec/requirements as saying there are only 3 valid status codes: **200** + **400** *(POST receipt)* and **200** + **404** *(GET receipt)*
+   - Interpreted spec as suggesting to return the description in the response body for a **400** and **404** as *"The receipt is invalid."* and *"No receipt found for that ID."*, respectively, so overrode the generated response objects *(server/status.go)*
 
 ---
 
 ## Possible Future Enhancements
 
-While this implementation is solid, here are some areas that could be improved in a production setting:
+While this implementation is complete, here are some areas that could be improved in a production setting:
 
 1. **Database Integration**: Replace `MemoryRepository` with PostgreSQL or MongoDB for persistence.
 2. **Caching**: Use Redis to store frequently accessed receipts and computed points.
