@@ -14,7 +14,7 @@ func TestRulesEngineAgainstProvidedReceipts(t *testing.T) {
 		filename       string
 		expectedPoints int64
 	}{
-		// receipts saved from README.md
+		// receipts saved from https://github.com/fetch-rewards/receipt-processor-challenge/blob/main/README.md
 		{"Target Receipt", "../examples/points-test-28.json", 28},
 		{"M&M Corner Market Receipt", "../examples/points-test-109.json", 109},
 	}

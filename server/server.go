@@ -7,6 +7,7 @@ import (
 	mapper "fetch-assessment/mappers"
 	"fetch-assessment/repository"
 	"fetch-assessment/rules"
+	"fetch-assessment/validation"
 	"fmt"
 )
 
@@ -22,12 +23,20 @@ func NewServer(repository repository.Repository) *Server {
 	}
 }
 
+// if we had excessive handlers, we'd break each out out into a separate file
+// but for cohesion, and because the endpoints represent a logical grouping, i'm implementing both handlers in this one file
+
 // Submits a receipt for processing.
 // (POST /receipts/process)
 func (s *Server) PostReceiptsProcess(ctx context.Context, request api.PostReceiptsProcessRequestObject) (api.PostReceiptsProcessResponseObject, error) {
 	// ensure the receipt exists
 	if request.Body == nil {
 		return nil, errors.New("invalid request: missing receipt")
+	}
+
+	validationEngine := validation.NewReceiptValidationEngine()
+	if !validationEngine.IsValid(*request.Body) {
+		return nil, fmt.Errorf("receipt failed validation")
 	}
 
 	// api.Receipt to rules.Receipt (business object)
@@ -51,11 +60,12 @@ func (s *Server) PostReceiptsProcess(ctx context.Context, request api.PostReceip
 // Returns the points awarded for the receipt.
 // (GET /receipts/{id}/points)
 func (s *Server) GetReceiptsIdPoints(ctx context.Context, request api.GetReceiptsIdPointsRequestObject) (api.GetReceiptsIdPointsResponseObject, error) {
+	// no need to validate id because it's validated by the generated handler
 	// load the receipt from the repository
 	receipt, err := s.Repository.LoadReceipt(request.Id)
 	if err != nil {
 		// receipt was not found
-		return api.GetReceiptsIdPoints404Response{}, nil
+		return CustomGetReceiptsIdPoints404Response{}, nil
 	}
 
 	// create a rules engine to process the receipt
