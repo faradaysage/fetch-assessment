@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"encoding/json"
 	"fetch-assessment/api"
 	"fetch-assessment/repository"
 	"fetch-assessment/server"
@@ -26,6 +27,20 @@ func loggingMiddleware(next http.Handler) http.Handler {
 	})
 }
 
+// allow running in docker on a different port
+func corsMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Access-Control-Allow-Origin", "*")
+		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
+		w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
+		if r.Method == "OPTIONS" {
+			w.WriteHeader(http.StatusOK)
+			return
+		}
+		next.ServeHTTP(w, r)
+	})
+}
+
 func main() {
 	// create an in-memory repository
 	repository := repository.NewMemoryRepository()
@@ -39,6 +54,17 @@ func main() {
 	// create a new multiplexer router
 	mux := http.NewServeMux()
 
+	// register swagger to testing
+	mux.HandleFunc("/swagger.json", func(w http.ResponseWriter, r *http.Request) {
+		spec, err := api.GetSwagger()
+		if err != nil {
+			http.Error(w, "Failed to load Swagger spec", http.StatusInternalServerError)
+			return
+		}
+		w.Header().Set("Content-Type", "application/json")
+		json.NewEncoder(w).Encode(spec)
+	})
+
 	// register health check
 	mux.HandleFunc("/healthz", func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
@@ -49,7 +75,7 @@ func main() {
 	api.HandlerFromMux(strictHandler, mux)
 
 	// wrap the mux with logging middleware
-	handlerWithLogging := loggingMiddleware(mux)
+	handlerWithLogging := loggingMiddleware(corsMiddleware(mux))
 
 	// define the port to listen on
 	port := os.Getenv("PORT")
