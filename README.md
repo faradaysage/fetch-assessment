@@ -160,7 +160,7 @@ While this implementation is complete, here are some areas that could be improve
 3. **Authentication & Authorization**: Implement JWT-based authentication.
 4. **Load Testing**: Ensure the server handles concurrent requests efficiently.
 5. **Distributed Deployment**: Add Docker & Kubernetes configuration.
-
+6. **Logging**: More detailed logging for troubleshooting production errors could be added (log specific validators that failed, as an example).
 ---
 
 ## Final Thoughts
