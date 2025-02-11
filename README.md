@@ -69,13 +69,17 @@ The API follows the OpenAPI definition provided in [`api/api.yml`](./api/api.yml
 - **Path**: `/receipts/process`
 - **Method**: `POST`
 - **Payload**: Receipt JSON
-- **Response**: JSON containing an ID for the receipt
+- **Response**: 
+    - If successful, a HTTP `200` status with the body containing JSON with an ID (uuid) for the receipt (ex: **{ "id" : "adb6b560-0eef-42bc-9d16-df48f30e89b2" }**)
+    - If failed, a HTTP `400` status with the body containing the message *"The receipt is invalid."*
 
 ### **Get Points**
 
 - **Path**: `/receipts/{id}/points`
 - **Method**: `GET`
-- **Response**: JSON containing the number of points awarded
+- **Response**:
+    - If successful, a HTTP `200` status with the body containing JSON with the number of points awarded (ex: **{ "points" : 100 }**)
+    - If failed, a HTTP `404` status with the body containing the message *"No receipt found for that ID."*
 
 ### **Health Check Endpoint**
 
